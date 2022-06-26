@@ -48,6 +48,7 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       // Images
+      // asset/resource: 별도의 파일을 내내내고 URL을 추출한다.
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: "asset/resource",
