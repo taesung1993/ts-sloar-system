@@ -4,3 +4,4 @@
 ### The used Npm.js packages
 - [x] Mercury
 - [x] Three.js
+- [x] ESLint
