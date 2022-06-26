@@ -1,13 +1,17 @@
 {
   "scripts": {
+    "lint": "npx eslint src/** --fix --ignore-path .eslintignore",
     "dev": "npx webpack serve --config ./webpack.dev.js"
   },
   "devDependencies": {
     "@babel/core": "^7.18.5",
+    "@babel/eslint-parser": "^7.18.2",
     "@babel/preset-env": "^7.18.2",
     "babel-loader": "^8.2.5",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
+    "eslint": "^8.18.0",
+    "eslint-webpack-plugin": "^3.2.0",
     "file-loader": "^6.2.0",
     "html-loader": "^3.1.2",
     "html-webpack-plugin": "^5.5.0",

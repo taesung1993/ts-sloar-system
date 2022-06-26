@@ -1,5 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
 
 
@@ -11,6 +12,7 @@ module.exports = {
   },
   devtool: "source-map",
   plugins: [
+    new ESLintPlugin(),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -53,8 +55,8 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: "asset/resource",
         generator: {
-          filename: 'static/images/[hash][ext]',
-        }
+          filename: "static/images/[hash][ext]",
+        },
       },
     ],
   },
