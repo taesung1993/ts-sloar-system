@@ -1,72 +1,91 @@
 import './styles.css';
 import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
+import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import {Lensflare, LensflareElement} from 'three/examples/jsm/objects/Lensflare';
+import Size from './config/sizes';
 
+function main() {
+  // create Size
+  const sizes = new Size().setWidth(window.innerWidth)
+                          .setHeight(window.innerHeight)
+                          .save();
 
-// Canvas
-const canvas = document.querySelector('canvas.webgl');
+  // canvas
+  const canvas = document.querySelector('canvas.webgl');
+  // scene
+  const scene = new THREE.Scene();
+  // Camera
+  const camera = new THREE.PerspectiveCamera(75, sizes.aspectRatio);
+  camera.position.z = 4;
+  scene.add(camera);
 
-// Scene
-const scene = new THREE.Scene();
+  // Texture
+  const textureLoader = new THREE.TextureLoader();
 
-// Object
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({color: 0xff0000});
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+  const sunTexture = textureLoader.load('/images/textures/solar-system/sun.jpg');
 
-// Sizes
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-};
+  // Object
+  const geometry = new THREE.SphereGeometry(0.5, 36, 16);
+  
+  // Light
+  const directionLight1 = new THREE.DirectionalLight(0xFFCCAA, 1.1);
+  directionLight1.position.set(0, 0, 1);
+  scene.add(directionLight1);
 
-// Cursor
-const cursor = {
-    x: 0,
-    y: 0
-};
+  const material = new THREE.MeshPhongMaterial();
+  // material.emissive = new THREE.Color('#ee2554');
+  material.map = sunTexture;
+  material.normalMap;
+  
+  const sun = new THREE.Mesh(geometry, material);
+  scene.add(sun);
 
-// Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
-camera.position.z = 3;
-scene.add(camera);
-
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-  canvas: canvas
-});
-renderer.setSize(sizes.width, sizes.height);
-renderer.render(scene, camera);
-
-// Controls
-const controls = new OrbitControls(camera, canvas);
-
-// Animation
-const tick = () => {
-  // Cursor
-  controls.update();
-
-  // Render
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ 
+    canvas,
+    antialias: true 
+  });
+  renderer.setSize(sizes.width, sizes.height);
   renderer.render(scene, camera);
 
-  // Call tick again on the next frame
-  window.requestAnimationFrame(tick);
-};
+  render({ renderer, scene, camera, sun });
 
-tick();
+  window.addEventListener(
+    'resize',
+    handleResize({ renderer, camera, sizes })
+  );
+}
 
-// Resize Event
-window.addEventListener('resize', () => {
-    // Update Sizes
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
+main();
 
-    // Update Camera
-    camera.aspect = sizes.width / sizes.height;
+function handleResize(config) {
+  const { renderer, camera, sizes, sun } = config; 
+
+  return function(event) {
+    sizes.setWidth(window.innerWidth)
+         .setHeight(window.innerHeight)
+         .save();
+    
+    camera.aspect = sizes.aspectRatio;
     camera.updateProjectionMatrix();
 
-    // Update renderer
     renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
-});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  };
+}
+
+function render(config) {
+  const {renderer, scene, camera, sun} = config;
+  const clock = new THREE.Clock();
+
+  return function cb (timestamp) {
+    const elapsedTime = clock.getElapsedTime();
+
+    sun.rotation.y = elapsedTime * 0.15;
+
+    renderer.render(scene, camera);
+    window.requestAnimationFrame(cb);
+  }();
+}
