@@ -1,60 +1,40 @@
 import './styles.css';
 import * as THREE from 'three';
-import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
-import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
-import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import {Lensflare, LensflareElement} from 'three/examples/jsm/objects/Lensflare';
 import Size from './config/sizes';
+import PerspectiveCamera from './cameras/perspective';
+import DirectionalLight from './lights/direction';
+import Sun from './plants/sun';
 
 function main() {
-  // create Size
+  const canvas = document.querySelector('canvas.webgl');
+  const scene = new THREE.Scene();
   const sizes = new Size().setWidth(window.innerWidth)
                           .setHeight(window.innerHeight)
                           .save();
 
-  // canvas
-  const canvas = document.querySelector('canvas.webgl');
-  // scene
-  const scene = new THREE.Scene();
-  // Camera
-  const camera = new THREE.PerspectiveCamera(75, sizes.aspectRatio);
-  camera.position.z = 4;
-  scene.add(camera);
+  const perspective = new PerspectiveCamera()
+                .setFieldView(75)
+                .setAspect(sizes.aspectRatio)
+                .setZPosition(7)
+                .save();
+  scene.add(perspective.camera);
 
-  // Texture
-  const textureLoader = new THREE.TextureLoader();
-
-  const sunTexture = textureLoader.load('/images/textures/solar-system/sun.jpg');
-
-  // Object
-  const geometry = new THREE.SphereGeometry(0.5, 36, 16);
+  const sun = new Sun(scene).create().save();
+  sun.setScale(1).save();
   
-  // Light
-  const directionLight1 = new THREE.DirectionalLight(0xFFCCAA, 1.1);
-  directionLight1.position.set(0, 0, 1);
-  scene.add(directionLight1);
-
-  const material = new THREE.MeshPhongMaterial();
-  // material.emissive = new THREE.Color('#ee2554');
-  material.map = sunTexture;
-  material.normalMap;
-  
-  const sun = new THREE.Mesh(geometry, material);
-  scene.add(sun);
-
   // Renderer
   const renderer = new THREE.WebGLRenderer({ 
     canvas,
     antialias: true 
   });
   renderer.setSize(sizes.width, sizes.height);
-  renderer.render(scene, camera);
+  renderer.render(scene, perspective.camera);
 
-  render({ renderer, scene, camera, sun });
+  render({ renderer, scene, camera: perspective.camera, sun: sun.mesh });
 
   window.addEventListener(
     'resize',
-    handleResize({ renderer, camera, sizes })
+    handleResize({ renderer, camera: perspective.camera, sizes })
   );
 }
 
