@@ -56,7 +56,7 @@ class Eearth {
 
     #generateEarth() {
         const mesh = new THREE.Mesh(this.#gemetry, this.#material);
-        mesh.position.set(-5, 0, 0);
+        mesh.position.set(-10, 0, 0);
         mesh.add(this.#light);
         this.#mesh = mesh;
         // this.#scene.add(mesh);
