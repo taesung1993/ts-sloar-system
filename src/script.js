@@ -4,6 +4,7 @@ import Size from './config/sizes';
 import PerspectiveCamera from './cameras/perspective';
 import DirectionalLight from './lights/direction';
 import Sun from './plants/sun';
+import Eearth from './plants/earth';
 
 function main() {
   const canvas = document.querySelector('canvas.webgl');
@@ -21,6 +22,11 @@ function main() {
 
   const sun = new Sun(scene).create().save();
   sun.setScale(1).save();
+
+
+  /* 지구 생성 */
+  const earth = new Eearth(scene).create().save();
+
   
   // Renderer
   const renderer = new THREE.WebGLRenderer({ 
@@ -30,7 +36,7 @@ function main() {
   renderer.setSize(sizes.width, sizes.height);
   renderer.render(scene, perspective.camera);
 
-  render({ renderer, scene, camera: perspective.camera, sun: sun.mesh });
+  render({ renderer, scene, camera: perspective.camera, sun: sun.mesh, earth: earth.mesh });
 
   window.addEventListener(
     'resize',
@@ -57,13 +63,14 @@ function handleResize(config) {
 }
 
 function render(config) {
-  const {renderer, scene, camera, sun} = config;
+  const {renderer, scene, camera, sun, earth} = config;
   const clock = new THREE.Clock();
 
   return function cb (timestamp) {
     const elapsedTime = clock.getElapsedTime();
 
-    sun.rotation.y = elapsedTime * 0.15;
+    sun.rotation.y = elapsedTime * 0.8;
+    earth.rotation.y = elapsedTime * 0.25;
 
     renderer.render(scene, camera);
     window.requestAnimationFrame(cb);
