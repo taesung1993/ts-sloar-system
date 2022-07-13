@@ -13,6 +13,7 @@ class Eearth {
     }
 
     constructor(scene) {
+        console.log(scene);
         this.#scene = scene;
     }
 
@@ -58,7 +59,7 @@ class Eearth {
         mesh.position.set(-5, 0, 0);
         mesh.add(this.#light);
         this.#mesh = mesh;
-        this.#scene.add(mesh);
+        // this.#scene.add(mesh);
     }
 }
 
