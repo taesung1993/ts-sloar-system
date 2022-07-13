@@ -2,9 +2,9 @@ import './styles.css';
 import * as THREE from 'three';
 import Size from './config/sizes';
 import PerspectiveCamera from './cameras/perspective';
-import DirectionalLight from './lights/direction';
 import Sun from './plants/sun';
 import Eearth from './plants/earth';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 function main() {
   const objects = [];
@@ -20,8 +20,9 @@ function main() {
   const perspective = new PerspectiveCamera()
                 .setFieldView(75)
                 .setAspect(sizes.aspectRatio)
-                .setZPosition(7)
                 .save();
+  perspective.camera.position.set(-5, 10, 17);
+  perspective.camera.lookAt(0, 0, 0);
   scene.add(perspective.camera);
 
   const sun = new Sun(scene).create().save();
@@ -43,7 +44,10 @@ function main() {
   renderer.setSize(sizes.width, sizes.height);
   renderer.render(scene, perspective.camera);
 
-  render({ renderer, scene, camera: perspective.camera, objects });
+  // Controls
+  const controls = new OrbitControls(perspective.camera, canvas);
+
+  render({ renderer, scene, camera: perspective.camera, objects, controls });
 
   window.addEventListener(
     'resize',
@@ -70,10 +74,10 @@ function handleResize(config) {
 }
 
 function render(config) {
-  const {renderer, scene, camera, objects} = config;
+  const {renderer, scene, camera, objects, controls} = config;
   const clock = new THREE.Clock();
 
-  return function cb (timestamp) {
+  return function cb () {
     const elapsedTime = clock.getElapsedTime();
     const OBJECT = {
       SOLAR_SYSYEM: 0,
@@ -95,6 +99,7 @@ function render(config) {
       };
     });
 
+    controls.update();
     renderer.render(scene, camera);
     window.requestAnimationFrame(cb);
   }();
