@@ -15,26 +15,42 @@ function main() {
                           .save();
   const solarSystem = new THREE.Object3D();
   scene.add(solarSystem);
-  objects.push(solarSystem);
+  objects.push(solarSystem); // index 0
 
   const perspective = new PerspectiveCamera()
                 .setFieldView(75)
                 .setAspect(sizes.aspectRatio)
                 .save();
-  perspective.camera.position.set(-5, 10, 17);
+  perspective.camera.position.set(0, 0, 17);
   perspective.camera.lookAt(0, 0, 0);
   scene.add(perspective.camera);
 
   const sun = new Sun(scene).create().save();
   sun.setScale(1).save();
   solarSystem.add(sun.mesh);
-  objects.push(sun.mesh);
+  objects.push(sun.mesh); // index 1
 
 
   /* 지구 생성 */
+  const earthOrbit = new THREE.Object3D();
+  earthOrbit.position.x = 10;
+  solarSystem.add(earthOrbit);
+  objects.push(earthOrbit); // index 2
+
   const earth = new Eearth(sun.mesh).create().save();
-  solarSystem.add(earth.mesh);
-  objects.push(earth.mesh);
+  earthOrbit.add(earth.mesh);
+  objects.push(earth.mesh); // index 3
+
+  /* 달 생성 */
+  const moonOrbit = new THREE.Object3D();
+  moonOrbit.position.x = 2;
+  earthOrbit.add(moonOrbit);
+  
+  const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+  const material = new THREE.MeshPhongMaterial({color: 0x888888, emissive: 0x222222});
+  const mesh = new THREE.Mesh(geometry, material);
+  moonOrbit.add(mesh);
+  objects.push(mesh); // index 4
   
   // Renderer
   const renderer = new THREE.WebGLRenderer({ 
@@ -82,21 +98,31 @@ function render(config) {
     const OBJECT = {
       SOLAR_SYSYEM: 0,
       SUN: 1,
-      EARTH: 2
+      EARTH_ORBIT: 2,
+      EARTH: 3,
+      MOON_ORBIT: 4
     };
 
     objects.forEach((object, index) => {
+      object.rotation.y = elapsedTime * 0.1;
+
       switch(index) {
         case OBJECT.SOLAR_SYSYEM:
           object.rotation.y = elapsedTime * 0.1;
           break;
         case OBJECT.SUN:
-          object.rotation.y = elapsedTime * 2;
+          object.rotation.y = elapsedTime * 4;
+          break;
+        case OBJECT.EARTH_ORBIT:
+          object.rotation.y = elapsedTime * 0.7;
           break;
         case OBJECT.EARTH:
-          object.rotation.y = elapsedTime * 1;
+          object.rotation.y = elapsedTime * 3;
           break;
-      };
+        case OBJECT.MOON_ORBIT:
+          object.rotation.y = elapsedTime * 2;
+          break;
+      }
     });
 
     controls.update();
