@@ -41,7 +41,9 @@ function main() {
 
   /* 지구 셍성 */
   const earth = new Earth(sun.mesh, perspective.camera).create().save();
+  earthOrbit.insertPlant(earth.generateAtmosphere()).save();
   earthOrbit.insertPlant(earth.mesh).save();
+  console.log(earthOrbit);
   objects.push(earth.mesh); // index 3
 
 

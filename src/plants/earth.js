@@ -1,92 +1,98 @@
 import * as THREE from 'three';
 
 const Shaders = {
-    atmosphere: {
-      vertexShader: `
-        uniform vec3 viewVector;
-        uniform float c;
-        uniform float p;
-        varying float intensity;
-        void main() 
-        {
-            vec3 vNormal = normalize( normalMatrix * normal );
-            vec3 vNormel = normalize( normalMatrix * viewVector );
-            intensity = pow( c - dot(vNormal, vNormel), p );
-          
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 0.2 );
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 glowColor;
-        varying float intensity;
-        void main() {
-          vec3 glow = glowColor * intensity;
-          gl_FragColor = vec4( glow, 1.0 );
-        }
-      `
-    }
-  };
+  atmosphere: {
+    vertexShader: `
+      void main() {
+        gl_Position = projectionMatrix * modelViewMatrix  * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+     void main() {
+        gl_FragColor = vec4(0.0, 0.0, 1.0, 0.2); // R, G, B, A
+      }
+    `,
+  },
+};
+
 
 class Eearth {
-    #scene = null;
-    #mesh = null;
-    #texture = null;
-    #material = null;
-    #gemetry = null;
-    #light = null;
-    #camera = null;
-    
-    get mesh() {
-        return this.#mesh;
-    }
+  #scene = null;
+  #mesh = null;
+  #texture = null;
+  #material = null;
+  #gemetry = null;
+  #light = null;
+  #camera = null;
 
-    constructor(scene, camera) {
-        this.#scene = scene;
-        this.#camera = camera;
-    }
+  get mesh() {
+    return this.#mesh;
+  }
 
-    create() {
-        this.#generateTexture();
-        this.#generateMaterial();
-        this.#generateGeometry();
-        this.#generateLight();
-        this.#generateEarth();
-        return this;
-    }
+  constructor(scene, camera) {
+    this.#scene = scene;
+    this.#camera = camera;
+  }
 
-    save() {
-        return this;
-    }
+  create() {
+    this.#generateTexture();
+    this.#generateMaterial();
+    this.#generateGeometry();
+    this.#generateLight();
+    this.#generateEarth();
+    // this.#generateAtmosphere();
+    return this;
+  }
 
-    #generateTexture() {
-        const textureLoader = new THREE.TextureLoader();
-        const texture = textureLoader.load(
-          '/images/textures/solar-system/earth.jpeg'
-        );
-        this.#texture = texture;
-    }
+  save() {
+    return this;
+  }
 
-    #generateMaterial() {
-        const material = new THREE.MeshPhongMaterial();
-        material.map = this.#texture;
-        this.#material = material;
-    }
+  #generateTexture() {
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(
+      '/images/textures/solar-system/earth.jpeg'
+    );
+    this.#texture = texture;
+  }
 
-    #generateGeometry() {
-        const geometry = new THREE.SphereGeometry(0.3, 32, 32);
-        this.#gemetry = geometry;
-    }
+  #generateMaterial() {
+    const material = new THREE.MeshPhongMaterial();
+    material.map = this.#texture;
+    this.#material = material;
+  }
 
-    #generateLight() {
-        const light = new THREE.AmbientLight(0xFFFFFFFF, 0.5);
-        this.#light = light;
-    }
+  #generateGeometry() {
+    const geometry = new THREE.SphereGeometry(0.3, 32, 32);
+    this.#gemetry = geometry;
+  }
 
-    #generateEarth() {
-        const mesh = new THREE.Mesh(this.#gemetry, this.#material);
-        mesh.add(this.#light);
-        this.#mesh = mesh;
-    }
+  #generateLight() {
+    const light = new THREE.AmbientLight(0xffffffff, 0.5);
+    this.#light = light;
+  }
+
+  #generateEarth() {
+    const mesh = new THREE.Mesh(this.#gemetry, this.#material);
+    mesh.add(this.#light);
+    this.#mesh = mesh;
+  }
+
+  generateAtmosphere() {
+    const geometry = new THREE.SphereGeometry(0.3, 36, 32);
+    const atmosphereMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        c: { type: 'f', value: 0.7 },
+        p: { type: 'f', value: 4.0 },
+      },
+      vertexShader: Shaders.atmosphere.vertexShader,
+      fragmentShader: Shaders.atmosphere.fragmentShader,
+      transparent: true
+    });
+    const atmosphere = new THREE.Mesh(geometry, atmosphereMaterial);
+    atmosphere.scale.set(1.1, 1.1, 1.1);
+    return atmosphere;
+  }
 }
 
 export default Eearth;

@@ -4,28 +4,24 @@ import DirectionalLight from '../lights/direction';
 const Shaders = {
   atmosphere: {
     vertexShader: `
-      uniform vec3 viewVector;
-      uniform float c;
-      uniform float p;
-      varying float intensity;
-      void main() 
-      {
-          vec3 vNormal = normalize( normalMatrix * normal );
-          vec3 vNormel = normalize( normalMatrix * viewVector );
-          intensity = pow( c - dot(vNormal, vNormel), p );
-        
-          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 0.2 );
+      varying vec3 vNormal;
+
+      void main() {
+        vNormal = normalize( normalMatrix * normal );
+        gl_Position = projectionMatrix * modelViewMatrix  * vec4(position,1.0);
       }
     `,
     fragmentShader: `
-      uniform vec3 glowColor;
-      varying float intensity;
+      uniform float c;
+      uniform float p;
+      varying vec3 vNormal;
+
       void main() {
-        vec3 glow = glowColor * intensity;
-        gl_FragColor = vec4( glow, 1.0 );
+        float intensity = pow( c - dot( vNormal, vec3( 0.0, 0.0, 0.3 ) ), p ); 
+        gl_FragColor = vec4( 1.0, 0.498, 0.0, 1.0 ) * intensity;
       }
-    `
-  }
+    `,
+  },
 };
 
 class Sun {
@@ -95,19 +91,17 @@ class Sun {
   }
 
   #generateAtmosphere() {
-    const geometry = new THREE.SphereGeometry(3, 36, 16);
+    const geometry = new THREE.SphereGeometry(10, 36, 16);
     const atmosphereMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        c:   { type: 'f', value: 0.1 },
-        p:   { type: 'f', value: 5 },
-        glowColor: { type: 'c', value: new THREE.Color('#f89b00') },
-        viewVector: { type: 'v3', value: this.#camera.position }
+        c: { type: 'f', value: 0.7 },
+        p: { type: 'f', value: 5.0 },
       },
       vertexShader: Shaders.atmosphere.vertexShader,
       fragmentShader: Shaders.atmosphere.fragmentShader,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
-      transparent: true
+      transparent: true,
     });
     const atm = new THREE.Mesh(geometry, atmosphereMaterial);
     atm.scale.set(1.1, 1.1, 1.1);
