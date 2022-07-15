@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import Size from './config/sizes';
 import PerspectiveCamera from './cameras/perspective';
 import Sun from './plants/sun';
-import Eearth from './plants/earth';
+import Earth from './plants/earth';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import Orbit from './orbits/orbit';
 import Moon from './plants/moon';
@@ -26,7 +26,7 @@ function main() {
                 .lookAt(0, 0, 0)
                 .save();
 
-  const sun = new Sun(solarSystem).create().setScale(2).save();
+  const sun = new Sun(solarSystem, perspective.camera).create().setScale(2).save();
   objects.push(sun.mesh); // index 1
 
 
@@ -40,7 +40,7 @@ function main() {
     
 
   /* 지구 셍성 */
-  const earth = new Eearth(sun.mesh).create().save();
+  const earth = new Earth(sun.mesh, perspective.camera).create().save();
   earthOrbit.insertPlant(earth.mesh).save();
   objects.push(earth.mesh); // index 3
 

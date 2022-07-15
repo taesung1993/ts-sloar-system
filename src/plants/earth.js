@@ -1,5 +1,32 @@
 import * as THREE from 'three';
 
+const Shaders = {
+    atmosphere: {
+      vertexShader: `
+        uniform vec3 viewVector;
+        uniform float c;
+        uniform float p;
+        varying float intensity;
+        void main() 
+        {
+            vec3 vNormal = normalize( normalMatrix * normal );
+            vec3 vNormel = normalize( normalMatrix * viewVector );
+            intensity = pow( c - dot(vNormal, vNormel), p );
+          
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 0.2 );
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        varying float intensity;
+        void main() {
+          vec3 glow = glowColor * intensity;
+          gl_FragColor = vec4( glow, 1.0 );
+        }
+      `
+    }
+  };
+
 class Eearth {
     #scene = null;
     #mesh = null;
@@ -7,13 +34,15 @@ class Eearth {
     #material = null;
     #gemetry = null;
     #light = null;
+    #camera = null;
     
     get mesh() {
         return this.#mesh;
     }
 
-    constructor(scene) {
+    constructor(scene, camera) {
         this.#scene = scene;
+        this.#camera = camera;
     }
 
     create() {
