@@ -5,6 +5,8 @@ import PerspectiveCamera from './cameras/perspective';
 import Sun from './plants/sun';
 import Eearth from './plants/earth';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import Orbit from './orbits/orbit';
+import Moon from './plants/moon';
 
 function main() {
   const objects = [];
@@ -17,40 +19,43 @@ function main() {
   scene.add(solarSystem);
   objects.push(solarSystem); // index 0
 
-  const perspective = new PerspectiveCamera()
+  const perspective = new PerspectiveCamera(scene)
                 .setFieldView(75)
                 .setAspect(sizes.aspectRatio)
+                .setZPosition(17)
+                .lookAt(0, 0, 0)
                 .save();
-  perspective.camera.position.set(0, 0, 17);
-  perspective.camera.lookAt(0, 0, 0);
-  scene.add(perspective.camera);
 
-  const sun = new Sun(scene).create().save();
-  sun.setScale(1).save();
-  solarSystem.add(sun.mesh);
+  const sun = new Sun(solarSystem).create().setScale(2).save();
   objects.push(sun.mesh); // index 1
 
 
-  /* 지구 생성 */
-  const earthOrbit = new THREE.Object3D();
-  earthOrbit.position.x = 10;
-  solarSystem.add(earthOrbit);
-  objects.push(earthOrbit); // index 2
+  /* 지구 궤도 생성 */
+  const earthOrbit = new Orbit()
+                      .setScene(solarSystem)
+                      .addedByScene()
+                      .setOrbitDistance(10)
+                      .save();
+  objects.push(earthOrbit.object);
+    
 
+  /* 지구 셍성 */
   const earth = new Eearth(sun.mesh).create().save();
-  earthOrbit.add(earth.mesh);
+  earthOrbit.insertPlant(earth.mesh).save();
   objects.push(earth.mesh); // index 3
 
+
+  /* 달 궤도 생성 */
+  const moonOrbit = new Orbit()
+                    .setOrbitDistance(2)
+                    .setScene(earthOrbit.object)
+                    .addedByScene()
+                    .save();
+
   /* 달 생성 */
-  const moonOrbit = new THREE.Object3D();
-  moonOrbit.position.x = 2;
-  earthOrbit.add(moonOrbit);
-  
-  const geometry = new THREE.SphereGeometry(0.1, 32, 32);
-  const material = new THREE.MeshPhongMaterial({color: 0x888888, emissive: 0x222222});
-  const mesh = new THREE.Mesh(geometry, material);
-  moonOrbit.add(mesh);
-  objects.push(mesh); // index 4
+  const moon = new Moon().create().save();
+  moonOrbit.insertPlant(moon.mesh);
+  objects.push(moon.mesh); // index 4
   
   // Renderer
   const renderer = new THREE.WebGLRenderer({ 
@@ -108,10 +113,10 @@ function render(config) {
 
       switch(index) {
         case OBJECT.SOLAR_SYSYEM:
-          object.rotation.y = elapsedTime * 0.1;
+          object.rotation.y = elapsedTime * 0.001;
           break;
         case OBJECT.SUN:
-          object.rotation.y = elapsedTime * 4;
+          object.rotation.y = elapsedTime * 1;
           break;
         case OBJECT.EARTH_ORBIT:
           object.rotation.y = elapsedTime * 0.7;

@@ -13,7 +13,6 @@ class Eearth {
     }
 
     constructor(scene) {
-        console.log(scene);
         this.#scene = scene;
     }
 

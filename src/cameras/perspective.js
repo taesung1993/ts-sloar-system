@@ -5,8 +5,11 @@ import * as THREE from 'three';
 */
 class PerspectiveCamera {
   #camera = new THREE.PerspectiveCamera();
+  #scene = null;
 
-  constructor() {}
+  constructor(scene) {
+    this.#scene = scene;
+  }
 
   setFieldView(fieldView) {
     /*
@@ -45,6 +48,11 @@ class PerspectiveCamera {
     return this;
   }
 
+  lookAt(x, y, z) {
+    this.#camera.lookAt(x, y, z);
+    return this;
+  }
+
   update() {
     /*
       카메라 옵션을 변경했을 경우, 변경 값을 업데이트한다.
@@ -54,6 +62,7 @@ class PerspectiveCamera {
 
   save() {
     this.#camera.updateProjectionMatrix();
+    this.#scene.add(this.#camera);
     return this;
   }
 

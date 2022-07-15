@@ -65,7 +65,7 @@ class Sun {
 
   #generateSun() {
     const sun = new THREE.Mesh(this.#geometry, this.#material);
-    // this.#scene.add(sun);
+    this.#scene.add(sun);
     this.#mesh = sun;
   }
 }
