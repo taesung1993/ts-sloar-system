@@ -40,7 +40,6 @@ class Eearth {
     this.#generateGeometry();
     this.#generateLight();
     this.#generateEarth();
-    // this.#generateAtmosphere();
     return this;
   }
 
